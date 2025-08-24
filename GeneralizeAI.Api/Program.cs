@@ -12,8 +12,6 @@ builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection("MongoDb"));
 
 // 2. Register dependencies for DI
-builder.Services.AddScoped<IGenericDocumentService, GenericDocumentService>();
-builder.Services.AddScoped<IGenericDocumentRepository, MongoGenericDocumentRepository>();
 builder.Services.AddScoped<IQueryTemplateService, QueryTemplateService>();
 builder.Services.AddScoped<IQueryTemplateRepository, MongoQueryTemplateRepository>();
 
@@ -30,6 +28,17 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 builder.WebHost.UseUrls("http://0.0.0.0:5259", "https://0.0.0.0:5260");
 
 var app = builder.Build();
@@ -41,6 +50,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

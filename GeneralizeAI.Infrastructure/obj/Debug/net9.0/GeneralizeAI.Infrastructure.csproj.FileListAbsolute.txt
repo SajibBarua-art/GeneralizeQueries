@@ -13,3 +13,4 @@
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/refint/GeneralizeAI.Infrastructure.dll
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.pdb
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/ref/GeneralizeAI.Infrastructure.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.sourcelink.json

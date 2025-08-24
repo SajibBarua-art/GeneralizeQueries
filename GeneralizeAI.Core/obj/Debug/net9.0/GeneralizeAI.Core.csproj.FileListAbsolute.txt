@@ -22,3 +22,4 @@
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Core/obj/Debug/net9.0/refint/GeneralizeAI.Core.dll
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Core/obj/Debug/net9.0/GeneralizeAI.Core.pdb
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Core/obj/Debug/net9.0/ref/GeneralizeAI.Core.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Core/obj/Debug/net9.0/GeneralizeAI.Core.sourcelink.json

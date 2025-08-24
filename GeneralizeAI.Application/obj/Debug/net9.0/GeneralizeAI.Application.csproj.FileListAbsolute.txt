@@ -28,3 +28,4 @@
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Application/obj/Debug/net9.0/refint/GeneralizeAI.Application.dll
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Application/obj/Debug/net9.0/GeneralizeAI.Application.pdb
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Application/obj/Debug/net9.0/ref/GeneralizeAI.Application.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Application/obj/Debug/net9.0/GeneralizeAI.Application.sourcelink.json

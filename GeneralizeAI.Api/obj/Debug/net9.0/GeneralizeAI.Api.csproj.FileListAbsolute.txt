@@ -56,3 +56,4 @@
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Api/obj/Debug/net9.0/GeneralizeAI.Api.pdb
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Api/obj/Debug/net9.0/GeneralizeAI.Api.genruntimeconfig.cache
 /home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Api/obj/Debug/net9.0/ref/GeneralizeAI.Api.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Api/obj/Debug/net9.0/GeneralizeAI.Api.sourcelink.json

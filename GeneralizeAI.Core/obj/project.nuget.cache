@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "Nqo+iMJLgB0=",
+  "success": true,
+  "projectFilePath": "/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Core/GeneralizeAI.Core.csproj",
+  "expectedPackageFiles": [
+    "/home/sajibbarua/.nuget/packages/mongodb.bson/3.4.3/mongodb.bson.3.4.3.nupkg.sha512",
+    "/home/sajibbarua/.nuget/packages/system.memory/4.5.5/system.memory.4.5.5.nupkg.sha512",
+    "/home/sajibbarua/.nuget/packages/system.runtime.compilerservices.unsafe/5.0.0/system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

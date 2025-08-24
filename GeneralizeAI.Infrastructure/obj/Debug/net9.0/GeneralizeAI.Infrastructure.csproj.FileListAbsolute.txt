@@ -1,0 +1,15 @@
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/bin/Debug/net9.0/GeneralizeAI.Infrastructure.deps.json
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/bin/Debug/net9.0/GeneralizeAI.Infrastructure.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/bin/Debug/net9.0/GeneralizeAI.Infrastructure.pdb
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/bin/Debug/net9.0/GeneralizeAI.Core.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/bin/Debug/net9.0/GeneralizeAI.Core.pdb
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.csproj.AssemblyReference.cache
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.AssemblyInfoInputs.cache
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.AssemblyInfo.cs
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.csproj.CoreCompileInputs.cache
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/Generali.D4FC4C67.Up2Date
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/refint/GeneralizeAI.Infrastructure.dll
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/GeneralizeAI.Infrastructure.pdb
+/home/sajibbarua/bracitProjects/generalize-queries/GeneralizeAI.Infrastructure/obj/Debug/net9.0/ref/GeneralizeAI.Infrastructure.dll

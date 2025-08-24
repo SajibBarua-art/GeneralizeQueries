@@ -58,6 +58,97 @@ public class QueryTemplatesController : ControllerBase
         return Ok(dto);
     }
     
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateQueryTemplateDto createDto)
+    {
+        var existingTemplate = await _templateService.GetTemplateByIdAsync(createDto.Id);
+        if (existingTemplate != null)
+        {
+            return Conflict($"A template with ID '{createDto.Id}' already exists.");
+        }
+
+        var template = MapFromCreateDtoToEntity(createDto);
+
+        await _templateService.CreateTemplateAsync(template);
+
+        var responseDto = MapToDto(template);
+        return CreatedAtRoute("GetTemplateById", new { id = responseDto.Id }, responseDto);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(string id, UpdateQueryTemplateDto updateDto)
+    {
+        var existingTemplate = await _templateService.GetTemplateByIdAsync(id);
+        if (existingTemplate is null)
+        {
+            return NotFound();
+        }
+
+        var templateToUpdate = MapFromUpdateDtoToEntity(id, updateDto);
+
+        var success = await _templateService.UpdateTemplateAsync(id, templateToUpdate);
+        
+        return success ? NoContent() : StatusCode(500, "An error occurred during the update.");
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var existingTemplate = await _templateService.GetTemplateByIdAsync(id);
+        if (existingTemplate is null)
+        {
+            return NotFound();
+        }
+        
+        var success = await _templateService.DeleteTemplateAsync(id);
+        
+        return success ? NoContent() : StatusCode(500, "An error occurred during deletion.");
+    }
+
+
+    // --- v-- MAPPING HELPERS --v ---
+
+    private QueryTemplate MapFromCreateDtoToEntity(CreateQueryTemplateDto dto)
+    {
+        return new QueryTemplate
+        {
+            Id = dto.Id,
+            RolesAndIdsAllowedToRead = dto.RolesAndIdsAllowedToRead,
+            IsMarkedToDelete = dto.IsMarkedToDelete,
+            Template = new TemplateDetails
+            {
+                Source = dto.Template.Source,
+                DynamicFilter = dto.Template.DynamicFilter,
+                Fields = dto.Template.Fields,
+                AllowedSorts = dto.Template.AllowedSorts,
+                Locale = dto.Template.Locale,
+                IsDynamicFilter = dto.Template.IsDynamicFilter,
+                CountOnly = dto.Template.CountOnly
+            }
+        };
+    }
+
+    private QueryTemplate MapFromUpdateDtoToEntity(string id, UpdateQueryTemplateDto dto)
+    {
+        // Similar to the create mapping, but we get the ID from the URL parameter.
+        return new QueryTemplate
+        {
+            Id = id, 
+            RolesAndIdsAllowedToRead = dto.RolesAndIdsAllowedToRead,
+            IsMarkedToDelete = dto.IsMarkedToDelete,
+            Template = new TemplateDetails
+            {
+                Source = dto.Template.Source,
+                DynamicFilter = dto.Template.DynamicFilter,
+                Fields = dto.Template.Fields,
+                AllowedSorts = dto.Template.AllowedSorts,
+                Locale = dto.Template.Locale,
+                IsDynamicFilter = dto.Template.IsDynamicFilter,
+                CountOnly = dto.Template.CountOnly
+            }
+        };
+    }
+    
     private QueryTemplateDto MapToDto(QueryTemplate template)
     {
         return new QueryTemplateDto

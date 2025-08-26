@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GeneralizeAI.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+811b8db7cddbb4e523458c654c9edef5a601e3c6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0cf1290c9b49e2a31889e983ff525be336064a98")]
 [assembly: System.Reflection.AssemblyProductAttribute("GeneralizeAI.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GeneralizeAI.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

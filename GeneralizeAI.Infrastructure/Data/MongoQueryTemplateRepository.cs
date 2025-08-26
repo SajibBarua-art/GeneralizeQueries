@@ -39,9 +39,26 @@ public class MongoQueryTemplateRepository : IQueryTemplateRepository
         _templatesCollection = mongoDatabase.GetCollection<QueryTemplate>("QueryTemplates");
     }
 
-    public async Task<QueryTemplate?> GetByIdAsync(string id) =>
-        await _templatesCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-    
     public async Task<IEnumerable<QueryTemplate>> GetAllAsync() =>
         await _templatesCollection.Find(_ => true).ToListAsync();
+
+    public async Task<QueryTemplate?> GetByIdAsync(string id) =>
+        await _templatesCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    // v-- ADD NEW METHODS --v
+    public async Task CreateAsync(QueryTemplate template) =>
+        await _templatesCollection.InsertOneAsync(template);
+
+    public async Task<bool> UpdateAsync(QueryTemplate template)
+    {
+        var result = await _templatesCollection
+            .ReplaceOneAsync(x => x.Id == template.Id, template);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
+
+    public async Task<bool> DeleteAsync(string id)
+    {
+        var result = await _templatesCollection.DeleteOneAsync(x => x.Id == id);
+        return result.IsAcknowledged && result.DeletedCount > 0;
+    }
 }

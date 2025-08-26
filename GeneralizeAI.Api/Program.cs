@@ -4,6 +4,8 @@ using GeneralizeAI.Core.Interfaces;
 using GeneralizeAI.Infrastructure;
 using GeneralizeAI.Infrastructure.Data;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +13,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection("MongoDb"));
 
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    // We get the settings from the IOptions we just configured.
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
 // 2. Register dependencies for DI
+builder.Services.AddScoped<IMongoDatabase>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return client.GetDatabase(settings.DatabaseName);
+});
+
+builder.Services.AddScoped<CollectionService>();
+builder.Services.AddScoped<ICollectionRepository, MongoCollectionRepository>();
+
 builder.Services.AddScoped<IQueryTemplateService, QueryTemplateService>();
 builder.Services.AddScoped<IQueryTemplateRepository, MongoQueryTemplateRepository>();
 

@@ -22,4 +22,11 @@ public class CollectionsController : ControllerBase
         var names = await _collectionService.GetAllCollectionNames();
         return Ok(names);
     }
+    
+    [HttpGet("{collectionName}/fields")]
+    public async Task<ActionResult<List<string>>> GetFields(string collectionName)
+    {
+        var fieldNames = await _collectionService.GetFieldNamesForCollectionAsync(collectionName);
+        return Ok(fieldNames);
+    }
 }

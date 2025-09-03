@@ -61,6 +61,16 @@ public class QueryTemplatesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateQueryTemplateDto createDto)
     {
+        // The ASP.NET Core framework does the hard work for you.
+        // If the incoming JSON is malformed, or if it fails the validation
+        // attributes in CreateQueryTemplateDto (like [Required]), 
+        // the ModelState will be invalid.
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        
         var existingTemplate = await _templateService.GetTemplateByIdAsync(createDto.Id);
         if (existingTemplate != null)
         {
@@ -83,9 +93,9 @@ public class QueryTemplatesController : ControllerBase
         {
             return NotFound();
         }
-
+    
         var templateToUpdate = MapFromUpdateDtoToEntity(id, updateDto);
-
+    
         var success = await _templateService.UpdateTemplateAsync(id, templateToUpdate);
         
         return success ? NoContent() : StatusCode(500, "An error occurred during the update.");

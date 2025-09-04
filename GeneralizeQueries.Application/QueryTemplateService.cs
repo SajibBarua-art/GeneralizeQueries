@@ -1,35 +1,40 @@
 using GeneralizeQueries.Core.Entities;
 using GeneralizeQueries.Core.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GeneralizeQueries.Application;
 
 public class QueryTemplateService : IQueryTemplateService
 {
-    private readonly IQueryTemplateRepository _repository;
-    public QueryTemplateService(IQueryTemplateRepository repository)
+    // The service is now stateless and has no dependencies in its constructor.
+    // It just contains the business logic, which is to delegate calls.
+    public QueryTemplateService() { }
+
+    public async Task<IEnumerable<QueryTemplate>> GetAllTemplatesAsync(IQueryTemplateRepository repository)
     {
-        _repository = repository;
+        return await repository.GetAllAsync();
     }
 
-    public Task<QueryTemplate?> GetTemplateByIdAsync(string id) => _repository.GetByIdAsync(id);
-    
-    public Task<IEnumerable<QueryTemplate>> GetAllTemplatesAsync() => _repository.GetAllAsync();
-    
-    public async Task CreateTemplateAsync(QueryTemplate template)
+    public async Task<QueryTemplate?> GetTemplateByIdAsync(IQueryTemplateRepository repository, string id)
     {
-        // Here you could add business logic, e.g., validation, checking for duplicates.
-        await _repository.CreateAsync(template);
+        return await repository.GetByIdAsync(id);
     }
-    
-    public async Task<bool> UpdateTemplateAsync(string id, QueryTemplate template)
+
+    public async Task CreateTemplateAsync(IQueryTemplateRepository repository, QueryTemplate template)
     {
-        // Ensure the ID from the URL is used, not one from a potential request body.
+        await repository.CreateAsync(template);
+    }
+
+    public async Task<bool> UpdateTemplateAsync(IQueryTemplateRepository repository, string id, QueryTemplate template)
+    {
+        // Business logic: Ensure the ID from the URL is always used.
         template.Id = id;
-        return await _repository.UpdateAsync(template);
+        return await repository.UpdateAsync(template);
     }
 
-    public async Task<bool> DeleteTemplateAsync(string id)
+    public async Task<bool> DeleteTemplateAsync(IQueryTemplateRepository repository, string id)
     {
-        return await _repository.DeleteAsync(id);
+        return await repository.DeleteAsync(id);
     }
 }

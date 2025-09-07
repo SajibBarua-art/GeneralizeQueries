@@ -3,9 +3,9 @@ using GeneralizeQueries.Core.Entities;
 namespace GeneralizeQueries.Core.Interfaces;
 public interface IQueryTemplateService
 {
-    Task<QueryTemplate?> GetTemplateByIdAsync(string id);
-    Task<IEnumerable<QueryTemplate>> GetAllTemplatesAsync();
-    Task CreateTemplateAsync(QueryTemplate template);
-    Task<bool> UpdateTemplateAsync(string id, QueryTemplate template);
-    Task<bool> DeleteTemplateAsync(string id);
+    Task<IEnumerable<QueryTemplate>> GetAllTemplatesAsync(IQueryTemplateRepository repository);
+    Task<QueryTemplate?> GetTemplateByIdAsync(IQueryTemplateRepository repository, string id);
+    Task CreateTemplateAsync(IQueryTemplateRepository repository, QueryTemplate template);
+    Task<bool> UpdateTemplateAsync(IQueryTemplateRepository repository, string id, QueryTemplate template);
+    Task<bool> DeleteTemplateAsync(IQueryTemplateRepository repository, string id);
 }

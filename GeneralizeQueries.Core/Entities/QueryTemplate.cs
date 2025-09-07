@@ -20,6 +20,7 @@ public class QueryTemplate
     public string IsMarkedToDelete { get; set; } = null!;
 }
 
+[BsonIgnoreExtraElements]
 public class TemplateDetails
 {
     [BsonElement("Source")]
@@ -39,7 +40,4 @@ public class TemplateDetails
 
     [BsonElement("IsDynamicFilter")]
     public string IsDynamicFilter { get; set; } = null!;
-
-    [BsonElement("CountOnly")]
-    public bool CountOnly { get; set; }
 }

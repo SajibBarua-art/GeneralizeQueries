@@ -10,49 +10,48 @@ namespace GeneralizeQueries.Infrastructure.Data;
 public class MongoQueryTemplateRepository : IQueryTemplateRepository
 {
     private readonly IMongoCollection<QueryTemplate> _templatesCollection;
-    
+
+    // The static constructor with BsonClassMap registrations for handling
+    // inconsistent data types (e.g., boolean vs. string) remains unchanged.
     static MongoQueryTemplateRepository()
     {
-        // This is the fluent mapping API. It tells the driver how to map the class.
         BsonClassMap.RegisterClassMap<TemplateDetails>(cm =>
         {
-            cm.AutoMap(); // Map all other properties automatically
-            // For this specific member, use our custom serializer
-            cm.GetMemberMap(c => c.IsDynamicFilter)
-                .SetSerializer(new BooleanOrStringSerializer());
+            cm.AutoMap();
+            cm.GetMemberMap(c => c.IsDynamicFilter).SetSerializer(new BooleanOrStringSerializer());
         });
-        
+
         BsonClassMap.RegisterClassMap<QueryTemplate>(cm =>
         {
-            cm.AutoMap(); // Map all other properties automatically
-            // For this specific member, use our reusable custom serializer
-            cm.GetMemberMap(c => c.IsMarkedToDelete)
-                .SetSerializer(new BooleanOrStringSerializer());
+            cm.AutoMap();
+            cm.GetMemberMap(c => c.IsMarkedToDelete).SetSerializer(new BooleanOrStringSerializer());
         });
     }
 
-    public MongoQueryTemplateRepository(IOptions<MongoDbSettings> settings)
+    // THIS IS THE CRITICAL CHANGE: The constructor is now much simpler.
+    // It no longer depends on IOptions or IMongoClient. It is GIVEN the
+    // exact database it needs to work with.
+    public MongoQueryTemplateRepository(IMongoDatabase database)
     {
-        var mongoClient = new MongoClient(settings.Value.ConnectionString);
-        var mongoDatabase = mongoClient.GetDatabase(settings.Value.DatabaseName);
-        // NOTE: We are targeting a NEW collection named "QueryTemplates"
-        _templatesCollection = mongoDatabase.GetCollection<QueryTemplate>("QueryTemplates");
+        _templatesCollection = database.GetCollection<QueryTemplate>("QueryTemplatesTest");
     }
+
+    // ALL OTHER METHODS (GetAllAsync, GetByIdAsync, CreateAsync, UpdateAsync, DeleteAsync)
+    // REMAIN EXACTLY THE SAME. They don't need to change because they already
+    // operate on the pre-configured _templatesCollection.
 
     public async Task<IEnumerable<QueryTemplate>> GetAllAsync() =>
         await _templatesCollection.Find(_ => true).ToListAsync();
 
     public async Task<QueryTemplate?> GetByIdAsync(string id) =>
         await _templatesCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-
-    // v-- ADD NEW METHODS --v
+    
     public async Task CreateAsync(QueryTemplate template) =>
         await _templatesCollection.InsertOneAsync(template);
 
     public async Task<bool> UpdateAsync(QueryTemplate template)
     {
-        var result = await _templatesCollection
-            .ReplaceOneAsync(x => x.Id == template.Id, template);
+        var result = await _templatesCollection.ReplaceOneAsync(x => x.Id == template.Id, template);
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }
 

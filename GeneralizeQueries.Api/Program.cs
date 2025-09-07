@@ -3,6 +3,7 @@ using GeneralizeQueries.Application;
 using GeneralizeQueries.Core.Interfaces;
 using GeneralizeQueries.Infrastructure;
 using GeneralizeQueries.Infrastructure.Data;
+using GeneralizeQueries.Application.Configuration;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -13,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection("MongoDb"));
 
+builder.Services.Configure<FileSettings>(
+    builder.Configuration.GetSection("FileSettings"));
+
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     // We get the settings from the IOptions we just configured.
@@ -21,6 +25,11 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 });
 
 // 2. Register dependencies for DI
+builder.Services.AddScoped<IServiceRegistrationService, ServiceRegistrationService>();
+builder.Services.AddScoped<IDynamicMongoRepository, DynamicMongoRepository>(); 
+builder.Services.AddScoped<IDynamicQueryService, DynamicQueryService>(); 
+builder.Services.AddScoped<IDynamicQueryRepository, DynamicQueryRepository>();
+
 builder.Services.AddScoped<IMongoDatabase>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
@@ -28,11 +37,15 @@ builder.Services.AddScoped<IMongoDatabase>(sp =>
     return client.GetDatabase(settings.DatabaseName);
 });
 
-builder.Services.AddScoped<CollectionService>();
-builder.Services.AddScoped<ICollectionRepository, MongoCollectionRepository>();
+builder.Services.AddScoped<ICollectionRepositoryFactory, CollectionRepositoryFactory>();
+builder.Services.AddScoped<ICollectionService, CollectionService>();
+// builder.Services.AddScoped<CollectionService>();
+// builder.Services.AddScoped<ICollectionRepository, MongoCollectionRepository>();
 
 builder.Services.AddScoped<IQueryTemplateService, QueryTemplateService>();
-builder.Services.AddScoped<IQueryTemplateRepository, MongoQueryTemplateRepository>();
+builder.Services.AddScoped<IQueryTemplateRepositoryFactory, QueryTemplateRepositoryFactory>();
+builder.Services.AddScoped<IQueryTemplateService, QueryTemplateService>();
+// builder.Services.AddScoped<IQueryTemplateRepository, MongoQueryTemplateRepository>();
 
 
 // Add services to the container.

@@ -2,9 +2,13 @@ namespace GeneralizeQueries.Core.Interfaces;
 
 public interface ICollectionService
 {
-    /// A task to get all collection names.
-    Task<IEnumerable<string>> GetAllCollectionNames();
+    /// <summary>
+    /// A task to get all collection names using a specific worker.
+    /// </summary>
+    Task<IEnumerable<string>> GetAllCollectionNames(ICollectionRepository repository);
 
-    /// A task to get the field names from a specific collection.
-    Task<List<string>> GetFieldNamesForCollectionAsync(string collectionName);
+    /// <summary>
+    /// A task to get the field names from a specific collection using a specific worker.
+    /// </summary>
+    Task<List<string>> GetFieldNamesForCollectionAsync(ICollectionRepository repository, string collectionName);
 }

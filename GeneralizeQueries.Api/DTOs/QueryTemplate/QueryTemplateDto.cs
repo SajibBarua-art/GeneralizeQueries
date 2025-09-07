@@ -40,7 +40,4 @@ public class TemplateDetailsDto
     // If it were a boolean, the type would be `bool`.
     [JsonPropertyName("IsDynamicFilter")]
     public string IsDynamicFilter { get; set; } = null!; 
-
-    [JsonPropertyName("CountOnly")]
-    public bool CountOnly { get; set; }
 }

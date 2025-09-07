@@ -1,0 +1,323 @@
+[  
+  {
+    "Id": "reservation",
+    "ServiceName": "ReservationService",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracDhaka",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "Reservation",
+			"ReadDatabaseName": "ReservationDatabase",
+			"StateDatabaseName": "ReservationDatabase",
+			"EventDatabaseName": "ReservationDatabase",
+            "DefaultDatabaseName": "ReservationDatabase",          
+	        "DefaultServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "dataservice",
+    "ServiceName": "Data Service",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracDhaka",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "Data Service",
+			"ReadDatabaseName": "DataServiceReadDatabase",
+			"StateDatabaseName": "DataServiceStateDatabase",
+			"EventDatabaseName": "DataServiceStateDatabase",
+			"DefaultDatabaseName": "DataServiceSagaDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077", 
+			"DefaultServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",			
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "approval",
+    "ServiceName": "Approval",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracDhaka",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "ApprovalService",
+			"ReadDatabaseName": "ApprovalReadDatabase",
+			"StateDatabaseName": "ApprovalStateDatabase",
+			"EventDatabaseName": "ApprovalStateDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",   			
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "sms",
+    "ServiceName": "SMS Service",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracDhaka",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "SMS Service",
+			"ReadDatabaseName": "SmsReadDatabase",
+			"StateDatabaseName": "SmsStateDatabase",
+			"EventDatabaseName": "SmsStateDatabase",
+			"DefaultDatabaseName": "SmsReadDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",  
+			"DefaultServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",	 			
+            "Apps": [],
+			"StorageBucketName": "app_modernization_v2_dev",
+			"StorageServerConnectionString": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "uam",
+    "ServiceName": "User Access Management",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracIt",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "UAM Service",
+			"ReadDatabaseName": "UserAccessManagementReadDatabase",
+			"StateDatabaseName": "UserAccessManagementStateDatabase",
+			"EventDatabaseName": "UserAccessManagementStateDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",   			
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "storage",
+    "ServiceName": "Storage Service",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracIt",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "Storage Service",
+			"ReadDatabaseName": "StorageReadDatabase",
+			"StateDatabaseName": "StorageStateDatabase",
+			"EventDatabaseName": "StorageStateDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StorageBucketName": "app_modernization_v2_dev",
+			"StorageServerConnectionString": "",
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "mytoken",
+    "ServiceName": "MyToken",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracIt",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "MyToken",
+			"ReadDatabaseName": "MyTokenReadDatabase",
+			"StateDatabaseName": "MyTokenStateDatabase",
+			"EventDatabaseName": "MyTokenStateDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "wallet",
+    "ServiceName": "Wallet",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracIt",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "Wallet",
+			"ReadDatabaseName": "WalletReadDatabase",
+			"StateDatabaseName": "WalletStateDatabase",
+			"EventDatabaseName": "WalletStateDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "auditlog",
+    "ServiceName": "AuditLog",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracIt",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "AuditLog",
+			"ReadDatabaseName": "AuditLogReadDatabase",
+			"StateDatabaseName": "AuditLogStateDatabase",
+			"EventDatabaseName": "AuditLogStateDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+	"Id": "notification",
+	"ServiceName": "Push Notification",
+	"Tenants": [
+		{
+			"Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+			"Name": "BracDhaka",
+			"Verticals": [
+				{
+					"Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+					"Name": "notification",
+					"DefaultDatabaseName": "notification",
+					"DefaultServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+					"ReadDatabaseName": "notification",
+					"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+					"Apps": [
+						{
+							"Id": "NotificationApp",
+							"Secret": "45121d40-7ddb-46f8-a69e-8be887f6c026",
+							"Name": "45121d40-7ddb-46f8-a69e-8be887f6c026"
+						}
+					]
+				}
+			]
+		}
+	]
+  },
+  {
+    "Id": "central-wallet",
+    "ServiceName": "Central Wallet",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracDhaka",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "Central Wallet",
+			"ReadDatabaseName": "WalletReadDatabase",
+			"StateDatabaseName": "WalletStateDatabase",
+			"EventDatabaseName": "WalletStateDatabase",
+			"DefaultDatabaseName": "WalletReadDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",  
+			"DefaultServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+            "Apps": [],
+			"StorageBucketName": "app_modernization_v2_dev",
+			"StorageServerConnectionString": ""
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "bep-rfindicator",
+    "ServiceName": "BEP RFIndicator",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracDhaka",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "BEP RFIndicator",
+			"ReadDatabaseName": "RFIndicatorReadDatabase",
+			"StateDatabaseName": "RFIndicatorStateDatabase",
+			"EventDatabaseName": "RFIndicatorStateDatabase",
+			"DefaultDatabaseName": "RFIndicatorReadDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",  
+			"DefaultServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Id": "selp",
+    "ServiceName": "SELP",
+    "Tenants": [
+      {
+        "Id": "67a5163c-565d-4ca0-b117-87c701f654f9",
+        "Name": "BracDhaka",
+        "Verticals": [
+          {
+            "Id": "3799ab80-cf73-4dbf-90b5-6ac97c0db835",
+            "Name": "SELP",
+			"ReadDatabaseName": "SelpReadDatabase",
+			"StateDatabaseName": "SelpStateDatabase",
+			"EventDatabaseName": "SelpStateDatabase",
+			"DefaultDatabaseName": "SelpReadDatabase",
+			"ReadServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"StateServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+			"EventServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",  
+			"DefaultServerConnectionString": "mongodb://admin:yfjP6Hayl4Ozra2@10.42.65.141:27077",
+            "Apps": []
+          }
+        ]
+      }
+    ]
+  }
+]

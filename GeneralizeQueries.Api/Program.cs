@@ -60,18 +60,21 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
+    options.AddPolicy(name: myAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:4201") // Allow your Angular frontend origin
+                                .AllowAnyHeader()                  // Allow any HTTP header
+                                .AllowAnyMethod()
+                                .AllowCredentials();              // Allow any HTTP method (GET, POST, PUT, DELETE, etc.)
+                      });
 });
 
-builder.WebHost.UseUrls("http://0.0.0.0:5259", "https://0.0.0.0:5260");
+builder.WebHost.UseUrls("http://0.0.0.0:5259");
 
 var app = builder.Build();
 
@@ -82,7 +85,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
+app.UseCors(myAllowSpecificOrigins);
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

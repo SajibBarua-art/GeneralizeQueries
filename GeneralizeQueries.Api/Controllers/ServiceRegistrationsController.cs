@@ -1,62 +1,58 @@
+using GeneralizeQueries.Api.Authorization;
 using GeneralizeQueries.Core.Interfaces;
 using GeneralizeQueries.Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GeneralizeQueries.Api.Controllers;
 
+[Authorize]
+[RoleAuthorization]
 [ApiController]
-[Route("api/[controller]")]
+[Route("services")]
 public class ServiceRegistrationsController : ControllerBase
 {
+    private readonly ILogger<ServiceRegistrationsController> _logger;
     private readonly IServiceRegistrationService _service;
 
-    public ServiceRegistrationsController(IServiceRegistrationService service)
+    public ServiceRegistrationsController(
+        IServiceRegistrationService service,
+        ILogger<ServiceRegistrationsController> logger) // Inject ILogger
     {
         _service = service;
+        _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllRegistrations()
     {
+        _logger.LogInformation("Attempting to get all service registrations.");
         try
         {
-            // 1. Get the full, detailed list of registrations from the service.
             var fullRegistrations = await _service.GetAllAsync();
 
-            // --- v-- THE TRANSFORMATION --v ---
-            // 2. Use LINQ's .Select() to transform each full object
-            //    into our new, simple DTO.
-            var simpleInfoList = fullRegistrations.Select(reg => new SimpleServiceInfoDto()
+            var simpleInfoList = fullRegistrations.Select(reg => new SimpleServiceInfoDto
             {
                 Id = reg.Id,
                 ServiceName = reg.ServiceName
-            });
-            // --- ^-- END OF TRANSFORMATION --^ ---
+            }).ToList(); // Use ToList() to easily get the count
 
-            // 3. Return the new list of simple objects.
+            _logger.LogInformation("Successfully retrieved {Count} service registrations.", simpleInfoList.Count);
+
             return Ok(simpleInfoList);
         }
         catch (FileNotFoundException ex)
         {
+            // This is a configuration-level error, significant enough for a warning.
+            _logger.LogWarning(ex, "Service registrations configuration file was not found.");
             return NotFound(new { message = ex.Message });
         }
+        catch (Exception ex)
+        {
+            // Catch any other unexpected errors.
+            _logger.LogError(ex, "An unexpected error occurred while retrieving service registrations.");
+            return StatusCode(500,
+                new { message = "An internal server error occurred while retrieving service registrations." });
+        }
     }
-
-    // [HttpGet("{serviceId}/collections")]
-    // public async Task<IActionResult> GetCollectionsByServiceId(string serviceId)
-    // {
-    //     try
-    //     {
-    //         var collections = await _service.GetCollectionsForServiceAsync(serviceId);
-    //         if (collections.Count == 0)
-    //         {
-    //             return NotFound(new { message = $"Service with ID '{serviceId}' not found or has no collections." });
-    //         }
-    //         return Ok(collections);
-    //     }
-    //     catch (InvalidOperationException ex)
-    //     {
-    //         return BadRequest(new { message = ex.Message });
-    //     }
-    // }
 }

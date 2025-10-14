@@ -1,56 +1,117 @@
+using GeneralizeQueries.Api.Authorization;
 using GeneralizeQueries.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GeneralizeQueries.Api.Controllers;
 
+[Authorize]
+[RoleAuthorization]
 [ApiController]
-[Route("api/service/{serviceId}/collections")] // The route is now dynamic
+[Route("collections")]
 public class CollectionsController : ControllerBase
 {
     private readonly ICollectionService _collectionService;
+    private readonly ILogger<CollectionsController> _logger;
     private readonly ICollectionRepositoryFactory _repositoryFactory;
 
-    // The front desk (Controller) has a direct line to the manager (Service)
-    // and also knows how to contact the factory to hire a temporary worker.
-    public CollectionsController(ICollectionService collectionService, ICollectionRepositoryFactory repositoryFactory)
+    public CollectionsController(
+        ICollectionService collectionService,
+        ICollectionRepositoryFactory repositoryFactory,
+        ILogger<CollectionsController> logger) // Inject ILogger
     {
         _collectionService = collectionService;
         _repositoryFactory = repositoryFactory;
+        _logger = logger;
     }
 
-    // A private helper to get the correctly configured repository for a request.
     private async Task<ICollectionRepository?> GetRepository(string serviceId)
     {
+        // Logging the creation attempt itself can be noisy; it's better to log the outcome in the public methods.
         return await _repositoryFactory.CreateRepositoryAsync(serviceId);
     }
 
     [HttpGet]
-    // [Authorize]
-    public async Task<ActionResult<IEnumerable<string>>> GetCollections(string serviceId)
+    public async Task<ActionResult<IEnumerable<string>>> GetCollections(
+        [FromHeader(Name = "x-service-id")] string? serviceId)
     {
-        var repo = await GetRepository(serviceId);
-        if (repo == null)
-        {
-            return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
-        }
+        if (string.IsNullOrWhiteSpace(serviceId))
+            return BadRequest(new { message = "x-service-id header is required" });
 
-        var collectionNames = await _collectionService.GetAllCollectionNames(repo);
-        return Ok(collectionNames);
+        _logger.LogInformation("Attempting to get collections for Service ID: {ServiceId}", serviceId);
+
+        try
+        {
+            var repo = await GetRepository(serviceId);
+            if (repo == null)
+            {
+                // Log a warning for a known but handled failure condition.
+                _logger.LogWarning("Service with ID '{ServiceId}' not found in configuration.", serviceId);
+                return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            }
+
+            var collectionNames = await _collectionService.GetAllCollectionNames(repo);
+            _logger.LogInformation("Successfully retrieved {Count} collections for Service ID: {ServiceId}",
+                collectionNames.Count(), serviceId);
+
+            return Ok(collectionNames);
+        }
+        catch (ObjectDisposedException ex)
+        {
+            _logger.LogError(ex,
+                "Database connection was disposed while getting collections for Service ID: {ServiceId}", serviceId);
+            return StatusCode(503, new { message = "Database connection error. Please retry the request." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while getting collections for Service ID: {ServiceId}",
+                serviceId);
+            return StatusCode(500, new { message = "An internal server error occurred." });
+        }
     }
 
     [HttpGet("{collectionName}/fields")]
-    public async Task<ActionResult<List<string>>> GetFields(string serviceId, string collectionName)
+    public async Task<ActionResult<List<string>>> GetFields(
+        [FromHeader(Name = "x-service-id")] string? serviceId,
+        string collectionName)
     {
-        var repo = await GetRepository(serviceId);
-        if (repo == null)
-        {
-            return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
-        }
+        if (string.IsNullOrWhiteSpace(serviceId))
+            return BadRequest(new { message = "x-service-id header is required" });
 
-        var fieldNames = await _collectionService.GetFieldNamesForCollectionAsync(repo, collectionName);
-        return Ok(fieldNames);
+        _logger.LogInformation("Attempting to get fields for Collection: {CollectionName} in Service ID: {ServiceId}",
+            collectionName, serviceId);
+
+        try
+        {
+            var repo = await GetRepository(serviceId);
+            if (repo == null)
+            {
+                _logger.LogWarning(
+                    "Service with ID '{ServiceId}' not found in configuration. Cannot get fields for collection '{CollectionName}'.",
+                    serviceId, collectionName);
+                return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            }
+
+            var fieldNames = await _collectionService.GetFieldNamesForCollectionAsync(repo, collectionName);
+            _logger.LogInformation(
+                "Successfully retrieved {Count} fields for Collection: {CollectionName} in Service ID: {ServiceId}",
+                fieldNames.Count, collectionName, serviceId);
+
+            return Ok(fieldNames);
+        }
+        catch (ObjectDisposedException ex)
+        {
+            _logger.LogError(ex,
+                "Database connection was disposed while getting fields for Collection: {CollectionName} in Service ID: {ServiceId}",
+                collectionName, serviceId);
+            return StatusCode(503, new { message = "Database connection error. Please retry the request." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "An unexpected error occurred while getting fields for Collection: {CollectionName} in Service ID: {ServiceId}",
+                collectionName, serviceId);
+            return StatusCode(500, new { message = "An internal server error occurred." });
+        }
     }
 }

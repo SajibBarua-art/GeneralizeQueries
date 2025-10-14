@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MongoDB.Bson" Version="3.4.3" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MongoDB.Bson" Version="3.5.0"/>
+        <PackageReference Include="MongoDB.Driver" Version="3.5.0"/>
+        <PackageReference Include="Platform.Infrastructure.Core" Version="1.0.30"/>
+    </ItemGroup>
 
 </Project>

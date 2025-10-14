@@ -1,24 +1,34 @@
+using GeneralizeQueries.Api.Authorization;
 using GeneralizeQueries.Api.DTOs;
-using GeneralizeQueries.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using GeneralizeQueries.Api.DTOs.QueryTemplate;
 using GeneralizeQueries.Core.Entities;
+using GeneralizeQueries.Core.Interfaces;
+using GeneralizeQueries.Core.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GeneralizeQueries.Api.Controllers;
 
+[Authorize]
+[RoleAuthorization]
 [ApiController]
-[Route("api/service/{serviceId}/templates")]
+[Route("templates")]
 public class QueryTemplatesController : ControllerBase
 {
-    private readonly IQueryTemplateService _templateService;
+    private readonly ILogger<QueryTemplatesController> _logger;
     private readonly IQueryTemplateRepositoryFactory _repositoryFactory;
+    private readonly IQueryTemplateService _templateService;
 
-    public QueryTemplatesController(IQueryTemplateService templateService, IQueryTemplateRepositoryFactory repositoryFactory)
+    public QueryTemplatesController(
+        IQueryTemplateService templateService,
+        IQueryTemplateRepositoryFactory repositoryFactory,
+        ILogger<QueryTemplatesController> logger) // Inject ILogger
     {
         _templateService = templateService;
         _repositoryFactory = repositoryFactory;
+        _logger = logger;
     }
 
-    // A private helper to reduce code duplication in every action method.
     private async Task<IQueryTemplateRepository?> GetRepositoryFromFactory(string serviceId)
     {
         var repo = await _repositoryFactory.CreateRepositoryAsync(serviceId);
@@ -26,150 +36,336 @@ public class QueryTemplatesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(string serviceId)
+    public async Task<IActionResult> GetAll(
+        [FromHeader(Name = "x-service-id")] string? serviceId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string sortDirection = "asc",
+        [FromQuery] string? search = null)
     {
-        var repo = await GetRepositoryFromFactory(serviceId);
-        if (repo == null)
-        {
-            return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
-        }
+        if (string.IsNullOrWhiteSpace(serviceId))
+            return BadRequest(new { message = "x-service-id header is required" });
 
-        var templates = await _templateService.GetAllTemplatesAsync(repo);
-        return Ok(templates.Select(MapToDto));
+        _logger.LogInformation("Attempting to get all templates for Service ID: {ServiceId}", serviceId);
+        try
+        {
+            var repo = await GetRepositoryFromFactory(serviceId);
+            if (repo == null)
+            {
+                _logger.LogWarning("Service with ID '{ServiceId}' not found in configuration.", serviceId);
+                return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            }
+
+            var paginationParams = new PaginationParameters
+            {
+                Page = page,
+                PageSize = pageSize,
+                SortBy = sortBy,
+                SortDirection = sortDirection
+            };
+
+            var pagedResult = await _templateService.GetPagedTemplatesAsync(repo, paginationParams);
+
+            var filteredItems = pagedResult.Items.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(search))
+                filteredItems = filteredItems.Where(template =>
+                    template.Template.Source.Contains(search, StringComparison.OrdinalIgnoreCase)
+                );
+
+            var mappedItems = filteredItems.Select(MapToDto);
+            var responseDto = PagedQueryTemplateResponseDto<QueryTemplateDto>.FromPagedResult(
+                PagedResult<QueryTemplateDto>.Create(mappedItems, pagedResult.Page, pagedResult.PageSize,
+                    pagedResult.TotalCount));
+
+            _logger.LogInformation("Successfully retrieved {Count} templates for Service ID: {ServiceId}",
+                responseDto.Items.Count(), serviceId);
+            return Ok(responseDto);
+        }
+        catch (ObjectDisposedException ex)
+        {
+            _logger.LogError(ex, "Database connection was disposed while getting templates for Service ID: {ServiceId}",
+                serviceId);
+            return StatusCode(503, new { message = "Database connection error. Please retry the request." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while getting all templates for Service ID: {ServiceId}",
+                serviceId);
+            return StatusCode(500, "An internal server error occurred.");
+        }
     }
 
     [HttpGet("{id}", Name = "GetTemplateById")]
-    public async Task<IActionResult> GetById(string serviceId, string id)
+    public async Task<IActionResult> GetById(
+        [FromHeader(Name = "x-service-id")] string? serviceId,
+        string id)
     {
-        var repo = await GetRepositoryFromFactory(serviceId);
-        if (repo == null)
-        {
-            return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
-        }
+        if (string.IsNullOrWhiteSpace(serviceId))
+            return BadRequest(new { message = "x-service-id header is required" });
 
-        var template = await _templateService.GetTemplateByIdAsync(repo, id);
-        if (template == null)
+        _logger.LogInformation("Attempting to get template by ID: {TemplateId} for Service ID: {ServiceId}", id,
+            serviceId);
+        try
         {
-            return NotFound(new { message = $"Template with ID '{id}' not found in service '{serviceId}'." });
+            var repo = await GetRepositoryFromFactory(serviceId);
+            if (repo == null)
+            {
+                _logger.LogWarning(
+                    "Service with ID '{ServiceId}' not found in configuration. Cannot get template '{TemplateId}'.",
+                    serviceId, id);
+                return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            }
+
+            var template = await _templateService.GetTemplateByIdAsync(repo, id);
+            if (template == null)
+            {
+                _logger.LogWarning("Template with ID '{TemplateId}' not found for Service ID: {ServiceId}", id,
+                    serviceId);
+                return NotFound(new { message = $"Template with ID '{id}' not found in service '{serviceId}'." });
+            }
+
+            _logger.LogInformation("Successfully retrieved template with ID: {TemplateId}", id);
+            return Ok(MapToDto(template));
         }
-        return Ok(MapToDto(template));
+        catch (ObjectDisposedException ex)
+        {
+            _logger.LogError(ex,
+                "Database connection was disposed while getting template ID: {TemplateId} for Service ID: {ServiceId}",
+                id, serviceId);
+            return StatusCode(503, new { message = "Database connection error. Please retry the request." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "An unexpected error occurred while getting template ID: {TemplateId} for Service ID: {ServiceId}", id,
+                serviceId);
+            return StatusCode(500, "An internal server error occurred.");
+        }
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(string serviceId, CreateQueryTemplateDto createDto)
+    public async Task<IActionResult> Create(
+        [FromHeader(Name = "x-service-id")] string? serviceId,
+        CreateQueryTemplateDto createDto)
     {
+        if (string.IsNullOrWhiteSpace(serviceId))
+            return BadRequest(new { message = "x-service-id header is required" });
+
+        _logger.LogInformation("Attempting to create a new template with ID: {TemplateId} for Service ID: {ServiceId}",
+            createDto.Id, serviceId);
         if (!ModelState.IsValid)
-        {
+            // Logging validation errors can be noisy, but useful for debugging client issues.
+            // _logger.LogWarning("Invalid model state for creating template for Service ID: {ServiceId}. Errors: {Errors}", serviceId, ModelState.Values.SelectMany(v => v.Errors));
             return BadRequest(ModelState);
-        }
-    
-        var repo = await GetRepositoryFromFactory(serviceId);
-        if (repo == null)
+
+        try
         {
-            return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            var repo = await GetRepositoryFromFactory(serviceId);
+            if (repo == null)
+            {
+                _logger.LogWarning(
+                    "Service with ID '{ServiceId}' not found in configuration. Cannot create template '{TemplateId}'.",
+                    serviceId, createDto.Id);
+                return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            }
+
+            var existingTemplate = await _templateService.GetTemplateByIdAsync(repo, createDto.Id);
+            if (existingTemplate != null)
+            {
+                _logger.LogWarning(
+                    "Attempt to create a template with an existing ID '{TemplateId}' for Service ID '{ServiceId}' was blocked.",
+                    createDto.Id, serviceId);
+                return Conflict($"A template with ID '{createDto.Id}' already exists in service '{serviceId}'.");
+            }
+
+            var template = MapFromCreateDtoToEntity(createDto);
+            await _templateService.CreateTemplateAsync(repo, template);
+
+            _logger.LogInformation("Successfully created template with ID: {TemplateId} for Service ID: {ServiceId}",
+                template.Id, serviceId);
+            var responseDto = MapToDto(template);
+            return CreatedAtRoute("GetTemplateById", new { id = responseDto.Id }, responseDto);
         }
-    
-        var existingTemplate = await _templateService.GetTemplateByIdAsync(repo, createDto.Id);
-        if (existingTemplate != null)
+        catch (ObjectDisposedException ex)
         {
-            return Conflict($"A template with ID '{createDto.Id}' already exists in service '{serviceId}'.");
+            _logger.LogError(ex,
+                "Database connection was disposed while creating template with ID: {TemplateId} for Service ID: {ServiceId}",
+                createDto.Id, serviceId);
+            return StatusCode(503, new { message = "Database connection error. Please retry the request." });
         }
-    
-        var template = MapFromCreateDtoToEntity(createDto);
-        await _templateService.CreateTemplateAsync(repo, template);
-    
-        var responseDto = MapToDto(template);
-        return CreatedAtRoute("GetTemplateById", new { serviceId = serviceId, id = responseDto.Id }, responseDto);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "An unexpected error occurred while creating template with ID: {TemplateId} for Service ID: {ServiceId}",
+                createDto.Id, serviceId);
+            return StatusCode(500, "An internal server error occurred.");
+        }
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string serviceId, string id, UpdateQueryTemplateDto updateDto)
+    public async Task<IActionResult> Update(
+        [FromHeader(Name = "x-service-id")] string? serviceId,
+        string id,
+        UpdateQueryTemplateDto updateDto)
     {
-        if (!ModelState.IsValid)
+        if (string.IsNullOrWhiteSpace(serviceId))
+            return BadRequest(new { message = "x-service-id header is required" });
+
+        _logger.LogInformation("Attempting to update template with ID: {TemplateId} for Service ID: {ServiceId}", id,
+            serviceId);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        try
         {
-            return BadRequest(ModelState);
+            var repo = await GetRepositoryFromFactory(serviceId);
+            if (repo == null)
+            {
+                _logger.LogWarning(
+                    "Service with ID '{ServiceId}' not found in configuration. Cannot update template '{TemplateId}'.",
+                    serviceId, id);
+                return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            }
+
+            var existingTemplate = await _templateService.GetTemplateByIdAsync(repo, id);
+            if (existingTemplate is null)
+            {
+                _logger.LogWarning(
+                    "Attempted to update a non-existent template with ID '{TemplateId}' for Service ID '{ServiceId}'.",
+                    id, serviceId);
+                return NotFound(new { message = $"Template with ID '{id}' not found in service '{serviceId}'." });
+            }
+
+            var templateToUpdate = MapFromUpdateDtoToEntity(id, updateDto);
+            await _templateService.UpdateTemplateAsync(repo, id, templateToUpdate);
+
+            _logger.LogInformation("Successfully updated template with ID: {TemplateId} for Service ID: {ServiceId}",
+                id, serviceId);
+            return NoContent();
         }
-    
-        var repo = await GetRepositoryFromFactory(serviceId);
-        if (repo == null)
+        catch (ObjectDisposedException ex)
         {
-            return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            _logger.LogError(ex,
+                "Database connection was disposed while updating template with ID: {TemplateId} for Service ID: {ServiceId}",
+                id, serviceId);
+            return StatusCode(503, new { message = "Database connection error. Please retry the request." });
         }
-        
-        var existingTemplate = await _templateService.GetTemplateByIdAsync(repo, id);
-        if (existingTemplate is null)
+        catch (Exception ex)
         {
-            return NotFound(new { message = $"Template with ID '{id}' not found in service '{serviceId}'." });
+            _logger.LogError(ex,
+                "An unexpected error occurred while updating template with ID: {TemplateId} for Service ID: {ServiceId}",
+                id, serviceId);
+            return StatusCode(500, "An internal server error occurred.");
         }
-    
-        var templateToUpdate = MapFromUpdateDtoToEntity(id, updateDto);
-        await _templateService.UpdateTemplateAsync(repo, id, templateToUpdate);
-    
-        return NoContent(); // Standard response for a successful PUT
     }
-    
+
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string serviceId, string id)
+    public async Task<IActionResult> Delete(
+        [FromHeader(Name = "x-service-id")] string? serviceId,
+        string id)
     {
-        var repo = await GetRepositoryFromFactory(serviceId);
-        if (repo == null)
+        if (string.IsNullOrWhiteSpace(serviceId))
+            return BadRequest(new { message = "x-service-id header is required" });
+
+        _logger.LogInformation("Attempting to delete template with ID: {TemplateId} for Service ID: {ServiceId}", id,
+            serviceId);
+        try
         {
-            return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            var repo = await GetRepositoryFromFactory(serviceId);
+            if (repo == null)
+            {
+                _logger.LogWarning(
+                    "Service with ID '{ServiceId}' not found in configuration. Cannot delete template '{TemplateId}'.",
+                    serviceId, id);
+                return NotFound(new { message = $"Service with ID '{serviceId}' not found in configuration." });
+            }
+
+            var existingTemplate = await _templateService.GetTemplateByIdAsync(repo, id);
+            if (existingTemplate is null)
+            {
+                _logger.LogWarning(
+                    "Attempted to delete a non-existent template with ID '{TemplateId}' for Service ID '{ServiceId}'.",
+                    id, serviceId);
+                return NotFound(new { message = $"Template with ID '{id}' not found in service '{serviceId}'." });
+            }
+
+            await _templateService.DeleteTemplateAsync(repo, id);
+
+            _logger.LogInformation("Successfully deleted template with ID: {TemplateId} for Service ID: {ServiceId}",
+                id, serviceId);
+            return NoContent();
         }
-    
-        var existingTemplate = await _templateService.GetTemplateByIdAsync(repo, id);
-        if (existingTemplate is null)
+        catch (ObjectDisposedException ex)
         {
-            return NotFound(new { message = $"Template with ID '{id}' not found in service '{serviceId}'." });
+            _logger.LogError(ex,
+                "Database connection was disposed while deleting template with ID: {TemplateId} for Service ID: {ServiceId}",
+                id, serviceId);
+            return StatusCode(503, new { message = "Database connection error. Please retry the request." });
         }
-    
-        await _templateService.DeleteTemplateAsync(repo, id);
-    
-        return NoContent(); // Standard response for a successful DELETE
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "An unexpected error occurred while deleting template with ID: {TemplateId} for Service ID: {ServiceId}",
+                id, serviceId);
+            return StatusCode(500, "An internal server error occurred.");
+        }
     }
 
 
     // --- v-- MAPPING HELPERS --v ---
-
+    // No logging needed in pure mapping functions.
     private QueryTemplate MapFromCreateDtoToEntity(CreateQueryTemplateDto dto)
     {
+        var template = new TemplateDetails
+        {
+            Source = dto.Template.Source,
+            Fields = dto.Template.Fields,
+            AllowedSorts = dto.Template.AllowedSorts,
+            Locale = dto.Template.Locale,
+            IsDynamicFilter = dto.Template.IsDynamicFilter,
+            CountOnly = dto.Template.CountOnly
+        };
+
+        if (dto.Template.IsDynamicFilter == "true")
+            template.DynamicFilter = dto.Template.DynamicFilter;
+        else if (dto.Template.IsDynamicFilter == "false") template.Filter = dto.Template.Filter;
+
         return new QueryTemplate
         {
             Id = dto.Id,
             RolesAndIdsAllowedToRead = dto.RolesAndIdsAllowedToRead,
             IsMarkedToDelete = dto.IsMarkedToDelete,
-            Template = new TemplateDetails
-            {
-                Source = dto.Template.Source,
-                DynamicFilter = dto.Template.DynamicFilter,
-                Fields = dto.Template.Fields,
-                AllowedSorts = dto.Template.AllowedSorts,
-                Locale = dto.Template.Locale,
-                IsDynamicFilter = dto.Template.IsDynamicFilter
-            }
+            Template = template
         };
     }
 
-    private QueryTemplate MapFromUpdateDtoToEntity(string id, UpdateQueryTemplateDto dto)
+    private QueryTemplate MapFromUpdateDtoToEntity(
+        string id,
+        UpdateQueryTemplateDto dto)
     {
-        // Similar to the create mapping, but we get the ID from the URL parameter.
+        var template = new TemplateDetails
+        {
+            Source = dto.Template.Source,
+            Fields = dto.Template.Fields,
+            AllowedSorts = dto.Template.AllowedSorts,
+            Locale = dto.Template.Locale,
+            IsDynamicFilter = dto.Template.IsDynamicFilter,
+            CountOnly = dto.Template.CountOnly
+        };
+
+        if (dto.Template.IsDynamicFilter == "true")
+            template.DynamicFilter = dto.Template.DynamicFilter;
+        else if (dto.Template.IsDynamicFilter == "false") template.Filter = dto.Template.Filter;
+
         return new QueryTemplate
         {
-            Id = id, 
+            Id = id,
             RolesAndIdsAllowedToRead = dto.RolesAndIdsAllowedToRead,
             IsMarkedToDelete = dto.IsMarkedToDelete,
-            Template = new TemplateDetails
-            {
-                Source = dto.Template.Source,
-                DynamicFilter = dto.Template.DynamicFilter,
-                Fields = dto.Template.Fields,
-                AllowedSorts = dto.Template.AllowedSorts,
-                Locale = dto.Template.Locale,
-                IsDynamicFilter = dto.Template.IsDynamicFilter
-            }
+            Template = template
         };
     }
-    
+
     private QueryTemplateDto MapToDto(QueryTemplate template)
     {
         return new QueryTemplateDto
@@ -180,11 +376,13 @@ public class QueryTemplatesController : ControllerBase
             Template = new TemplateDetailsDto
             {
                 Source = template.Template.Source,
-                DynamicFilter = template.Template.DynamicFilter,
                 Fields = template.Template.Fields,
                 AllowedSorts = template.Template.AllowedSorts,
                 Locale = template.Template.Locale,
-                IsDynamicFilter = template.Template.IsDynamicFilter
+                IsDynamicFilter = template.Template.IsDynamicFilter,
+                CountOnly = template.Template.CountOnly,
+                DynamicFilter = template.Template.DynamicFilter,
+                Filter = template.Template.Filter
             }
         };
     }
